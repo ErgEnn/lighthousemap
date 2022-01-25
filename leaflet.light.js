@@ -1,4 +1,4 @@
-L.Light = L.Circle.extend({
+L.Light = L.SemiCircle.extend({
 	setColor(color) {
 		if (this._color !== color) {
 			this._color = color;
