@@ -195,18 +195,20 @@
 									'seamark:light:sequence': '1+(1)'
 								});
 							}
-
+							let start = (parseFloat(data['seamark:light:sector_start'])+180)%360;
+							let stop = (parseFloat(data['seamark:light:sector_end'])+180)%360;
+							if(stop < start) stop = stop + 360;
 							let l = new L.Light(latlng, {
 								interactive: false,
 								title: feat.properties.tags['name'],
 								radius: (parseFloat(data['seamark:light:range'], 10) || 1) * 1852,
 								sequence: sequence,
 								stroke: false,
-								fillOpacity: 0.9,
+								fillOpacity: 0.5,
 								fill: !!sequence.state(0),
 								fillColor: sequence.state(0),
-								startAngle: parseFloat(data['seamark:light:sector_start']),
-								stopAngle: parseFloat(data['seamark:light:sector_end']),
+								startAngle: start,
+								stopAngle: stop,
 							});
 							layr.push(l)
 							i++;

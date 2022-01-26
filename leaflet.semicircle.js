@@ -179,7 +179,6 @@
                 ctx.save();
                 ctx.scale(1, s);
             }
-
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(start.x, start.y);
