@@ -13,7 +13,7 @@ L.Light = L.SemiCircle.extend({
 	setUseRealDistance: function(b) {
 		if(b != this.useRealDistance){
 			if(b)
-				this.setRadius(this.realDistance);
+				this.setRadius(this.options.realDistance);
 			else
 				this.setRadius(500);
 			this.useRealDistance = b;

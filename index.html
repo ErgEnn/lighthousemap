@@ -57,7 +57,7 @@
 			Show real distance
 		</label>
 	</div>
-	<a href="https://github.com/geodienst/lighthousemap"><img
+	<a href="https://github.com/ErgEnn/lighthousemap"><img
 			style="position: absolute; top: 0; right: 0; border: 0; z-index: 1000"
 			src="https://camo.githubusercontent.com/52760788cde945287fbb584134c4cbc2bc36f904/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67"
 			alt="Fork me on GitHub"
@@ -207,8 +207,8 @@
 							let l = new L.Light(latlng, {
 								interactive: false,
 								title: feat.properties.tags['name'],
-								radius: (parseFloat(data['seamark:light:range'], 10) || 1) * 1852,
-								realDistance: (parseFloat(data['seamark:light:range'], 10) || 1) * 1852,
+								radius: (parseFloat(data['seamark:light:range']) || 1) * 1852,
+								realDistance: (parseFloat(data['seamark:light:range']) || 1) * 1852,
 								sequence: sequence,
 								stroke: false,
 								fillOpacity: 0.5,
@@ -234,7 +234,7 @@
 			useRealColors = this.checked;
 		});
 
-		
+
 		let useRealDistances = true;
 
 		document.querySelector('input[name=real-distances]').checked = useRealColors;
@@ -246,7 +246,7 @@
 		lights.then(layer => {
 			let draw = function (t) {
 				layer.eachVisibleLayer(layerGroup => {
-					if(layerGroup.feature.properties.type == 'node')
+					if (layerGroup.feature.properties.type == 'node')
 						layerGroup.eachLayer(marker => {
 							var state = false
 							try {

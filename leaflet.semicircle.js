@@ -4,7 +4,7 @@
  *
  * This version is tested with leaflet 1.0.2
  */
- (function (factory) {
+(function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD
         define(['leaflet'], factory);
@@ -22,12 +22,12 @@
     var DEG_TO_RAD = Math.PI / 180;
 
     // make sure 0 degrees is up (North) and convert to radians.
-    function fixAngle (angle) {
+    function fixAngle(angle) {
         return (angle - 90) * DEG_TO_RAD;
     }
 
     // rotate point [x + r, y+r] around [x, y] by `angle` radians.
-    function rotated (p, angle, r) {
+    function rotated(p, angle, r) {
         return p.add(
             L.point(Math.cos(angle), Math.sin(angle)).multiplyBy(r)
         );
@@ -92,7 +92,7 @@
             );
         },
         _containsPoint: function (p) {
-            function normalize (angle) {
+            function normalize(angle) {
                 while (angle <= -Math.PI) {
                     angle += 2.0 * Math.PI;
                 }
@@ -194,11 +194,11 @@
     });
 
     L.SectorGroup = L.FeatureGroup.extend({
-        _project(){
+        _project() {
             this.eachLayer(layer => {
                 layer._map = this._map;
                 layer._project();
             });
-        }
+        },
     })
 });
