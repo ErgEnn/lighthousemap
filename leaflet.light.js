@@ -7,7 +7,7 @@ L.Light = L.SemiCircle.extend({
 	}
 });
 
-L.Light.sequence = function(tags, fallbackColor = '#FF0') {
+L.Light.sequence = function(tags, randOffset, fallbackColor = '#FF0') {
 	let character = tags['seamark:light:character'] || 'Fl';
 	
 	let colors = (tags['seamark:light:colour'] || fallbackColor).split(';');
@@ -27,7 +27,7 @@ L.Light.sequence = function(tags, fallbackColor = '#FF0') {
 	}
 
 	// For those Flashing lights that have a single number sequence
-	if (character.match(/^Fl|LFl|IQ$/) && sequence.match(/^\d+$/)) {
+	if (character.match(/^Fl|FI|LFl|IQ$/) && sequence.match(/^\d+$/)) {
 		const flash = parseFloat(sequence)
 		const remainder = 'seamark:light:period' in tags ? (parseFloat(tags['seamark:light:period']) - flash) : flash;
 		character = 'Fl';
@@ -41,7 +41,7 @@ L.Light.sequence = function(tags, fallbackColor = '#FF0') {
 	}
 
 	// Convert Q with Q+LFL sequence to Fl
-	if (character == 'Q' && 'seamark:light:period' in tags && sequence.match(/^Q(\(\d+\))?\s*\+\s*LFL/)) {
+	if (character.match(/^Q|VQ|UQ$/) && 'seamark:light:period' in tags && sequence.match(/^Q(\(\d+\))?\s*\+\s*LFL/)) {
 		let qlfl = sequence.match(/^Q(\((\d+)\))?\s*\+\s*LFL/);
 		const period = parseFloat(tags['seamark:light:period']);
 		const short = parseFloat(qlfl[2] || tags['seamark:light:group'] || 1);
@@ -58,7 +58,7 @@ L.Light.sequence = function(tags, fallbackColor = '#FF0') {
 	}
 
 	// Convert simple quick flashes which indicates how many with group and the total duration of that group with sequence into Fl.
-	if (character == 'Q' && sequence.match(/^\d$/) && 'seamark:light:group' in tags) {
+	if (character.match(/^Q|VQ|UQ$/) && sequence.match(/^\d$/) && 'seamark:light:group' in tags) {
 		const short = parseFloat(tags['seamark:light:group']);
 		const flash = parseFloat(sequence) / short / 2;
 		character = 'Fl';
@@ -74,13 +74,16 @@ L.Light.sequence = function(tags, fallbackColor = '#FF0') {
 
 		case 'Iso':
 			return new L.Light.CombinedSequence(colors.map(color => {
-				return new L.Light.Sequence(sequence, color);
-			}));
+				return new L.Light.Sequence(sequence, randOffset, color);
+			}), randOffset);
 
 		case 'Oc': // Occulting Light
 		case 'Fl': // Flashing Light
+		case 'FI': // Mistyped Fl
 		case 'LFl': // Long Flash Light
 		case 'Q': // Quick Flashing Light
+		case 'VQ': // Very quick flashing
+		case 'UQ': // Ultra quick
 		case 'Mo':
 			if (!sequence || sequence.match(/^\d+$/))
 				throw 'Unexpected sequence: ' + sequence;
@@ -96,13 +99,13 @@ L.Light.sequence = function(tags, fallbackColor = '#FF0') {
 					sequence = letter[2];
 				}
 
-				return new L.Light.Sequence(sequence, color);
+				return new L.Light.Sequence(sequence, randOffset, color);
 			});
 
 			if (sequences.length < colors.length)
 				console.warn('There are fewer sequences than colors', {character, sequence, colors}, tags);
 
-			return new L.Light.CombinedSequence(sequences);
+			return new L.Light.CombinedSequence(sequences, randOffset);
 	 
 	 	default:
 			throw 'Unknown character: ' + character
@@ -120,7 +123,7 @@ L.Light.Fixed = class {
 }
 
 L.Light.CombinedSequence = class {
-	constructor(sequences) {
+	constructor(sequences, randOffset) {
 		this.sequences = sequences;
 
 		this.sequences.forEach(sequence => {
@@ -129,7 +132,7 @@ L.Light.CombinedSequence = class {
 
 		this.duration = this.sequences.reduce((sum, seq) => sum + seq.duration, 0);
 
-		this.offset = Math.random() * this.duration;
+		this.offset = randOffset * this.duration;
 	}
 
 	state(time) {
@@ -145,11 +148,11 @@ L.Light.CombinedSequence = class {
 }
 
 L.Light.Sequence = class {
-	constructor(seq, color=true) {
-		this.setSequence(seq, color);
+	constructor(seq, randOffset, color=true) {
+		this.setSequence(seq, randOffset, color);
 	}
 
-	setSequence(seq, color) {
+	setSequence(seq, randOffset, color) {
 		this.text = seq;
 
 		this.steps = seq.replace(/\s/g, '').split('+').map(step => {
@@ -166,7 +169,7 @@ L.Light.Sequence = class {
 		if (isNaN(this.duration))
 			throw 'Cannot parse sequence "' + this.text + '"';
 
-		this.offset = Math.random() * this.duration;
+		this.offset = randOffset * this.duration;
 	}
 
 	state(time) {

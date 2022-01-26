@@ -59,16 +59,16 @@
 			alt="Fork me on GitHub"
 			data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"></a>
 	<script id="seamap-query" type="text/x-overpass">
-			[out:json][timeout:3600];
+			[out:json][timeout:7200];
 			// gather results
 			(
 			  // query part for: “"seamark:light:sequence"=*”
-			  node["seamark:light:sequence"]({{bbox}});
-			  way["seamark:light:sequence"]({{bbox}});
-			  relation["seamark:light:sequence"]({{bbox}});
-			  node["seamark:light:1:sequence"]({{bbox}});
-			  way["seamark:light:1:sequence"]({{bbox}});
-			  relation["seamark:light:1:sequence"]({{bbox}});
+			  node["seamark:light:colour"]({{bbox}});
+			  way["seamark:light:colour"]({{bbox}});
+			  relation["seamark:light:colour"]({{bbox}});
+			  node["seamark:light:1:colour"]({{bbox}});
+			  way["seamark:light:1:colour"]({{bbox}});
+			  relation["seamark:light:1:colour"]({{bbox}});
 			);
 			// print results
 			out body;
@@ -119,8 +119,8 @@
 			return [sw.lat, sw.lng, ne.lat, ne.lng]
 		}
 
-		let query = document.getElementById('seamap-query').textContent
-			.replace(/\{\{bbox\}\}/g, bbox(bounds).join(','));
+		//let query = document.getElementById('seamap-query').textContent
+		//	.replace(/\{\{bbox\}\}/g, bbox(bounds).join(','));
 
 		// // Query the entire world
 		// bounds = [-90, -180, 90, 180]
@@ -128,9 +128,9 @@
 		// let query = document.getElementById('seamap-query').textContent
 		// 	.replace(/\{\{bbox\}\}/g, bounds.join(','));
 
-		let url = 'https://www.overpass-api.de/api/interpreter?data=' + encodeURIComponent(query);
+		//let url = 'https://www.overpass-api.de/api/interpreter?data=' + encodeURIComponent(query);
 
-		url = 'data-full.json'; // For testing
+		url = 'data-full2.json'; // For testing
 		//url = 'data.json'; // For testing
 
 		let data = fetch(url)
@@ -151,14 +151,14 @@
 					let sequence;
 					if (feat.properties.tags['seamark:light:sequence']) {
 						try {
-							sequence = L.Light.sequence(feat.properties.tags, '#FF0');
+							sequence = L.Light.sequence(feat.properties.tags, Math.random(), '#FF0');
 						} catch (e) {
 							console.error('Error parsing sequence: %s', e, feat.properties.tags);
 
 							// Fallback sequence
 							sequence = L.Light.sequence({
 								'seamark:light:sequence': '1+(1)'
-							});
+							}, Math.random());
 						}
 
 						return new L.SectorGroup([new L.Light(latlng, {
@@ -174,6 +174,7 @@
 					} else if (feat.properties.tags['seamark:light:1:sequence']) {
 						var i = 1;
 						let layr = [];
+						let seqOffset = Math.random();
 						while (feat.properties.tags['seamark:light:' + i + ':sequence']) {
 							let data = {
 								"seamark:light:character": feat.properties.tags['seamark:light:' + i + ':character'],
@@ -185,19 +186,20 @@
 								"seamark:light:sector_start": feat.properties.tags['seamark:light:' + i + ':sector_start'],
 								"seamark:light:sector_end": feat.properties.tags['seamark:light:' + i + ':sector_end'],
 							}
+
 							try {
-								sequence = L.Light.sequence(data, '#FF0');
+								sequence = L.Light.sequence(data, seqOffset, '#FF0');
 							} catch (e) {
 								console.error('Error parsing sequence: %s', e, data);
 
 								// Fallback sequence
 								sequence = L.Light.sequence({
 									'seamark:light:sequence': '1+(1)'
-								});
+								}, seqOffset);
 							}
-							let start = (parseFloat(data['seamark:light:sector_start'])+180)%360;
-							let stop = (parseFloat(data['seamark:light:sector_end'])+180)%360;
-							if(stop < start) stop = stop + 360;
+							let start = (parseFloat(data['seamark:light:sector_start']) + 180) % 360;
+							let stop = (parseFloat(data['seamark:light:sector_end']) + 180) % 360;
+							if (stop < start) stop = stop + 360;
 							let l = new L.Light(latlng, {
 								interactive: false,
 								title: feat.properties.tags['name'],
@@ -229,16 +231,19 @@
 
 		lights.then(layer => {
 			let draw = function (t) {
-				layer.eachVisibleLayer(layerGroup => layerGroup.eachLayer(marker => {
-					var state = false
-					try {
-						var state = marker.options.sequence.state(t);
-						marker.setColor(state ? (useRealColors ? state : '#FF0') : false);
-					} catch (e) {
-						console.error(e)
-					}
+				layer.eachVisibleLayer(layerGroup => {
+					if(layerGroup.feature.properties.type == 'node')
+						layerGroup.eachLayer(marker => {
+							var state = false
+							try {
+								var state = marker.options.sequence.state(t);
+								marker.setColor(state ? (useRealColors ? state : '#FF0') : false);
+							} catch (e) {
+								console.error(e)
+							}
 
-				}));
+						})
+				});
 			};
 
 			let update = function (t) {
