@@ -153,7 +153,7 @@
 			return L.indexedGeoJSON(null, {
 				pointToLayer: function (feat, latlng) {
 					let sequence;
-					if (feat.properties.tags['seamark:light:sequence']) {
+					if (feat.properties.tags['seamark:light:colour']) {
 						try {
 							sequence = L.Light.sequence(feat.properties.tags, Math.random(), '#FF0');
 						} catch (e) {
@@ -175,11 +175,11 @@
 							fill: !!sequence.state(0),
 							fillColor: sequence.state(0)
 						})]);
-					} else if (feat.properties.tags['seamark:light:1:sequence']) {
+					} else if (feat.properties.tags['seamark:light:1:colour']) {
 						var i = 1;
 						let layr = [];
 						let seqOffset = Math.random();
-						while (feat.properties.tags['seamark:light:' + i + ':sequence']) {
+						while (feat.properties.tags['seamark:light:' + i + ':colour']) {
 							let data = {
 								"seamark:light:character": feat.properties.tags['seamark:light:' + i + ':character'],
 								"seamark:light:colour": feat.properties.tags['seamark:light:' + i + ':colour'],
