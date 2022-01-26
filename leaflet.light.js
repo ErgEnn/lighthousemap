@@ -15,7 +15,7 @@ L.Light = L.SemiCircle.extend({
 			if(b)
 				this.setRadius(this.options.realDistance);
 			else
-				this.setRadius(250);
+				this.setRadius(this.options.realDistance*0.1);
 			this.useRealDistance = b;
 		}
 	}
@@ -26,7 +26,7 @@ L.Light.sequence = function(tags, randOffset, fallbackColor = '#FF0') {
 	
 	let colors = (tags['seamark:light:colour'] || fallbackColor).split(';');
 
-	let sequence = tags['seamark:light:sequence'];
+	let sequence = tags['seamark:light:sequence'] || '1+(1)';
 	
 	if (character.match(/^Al\./)) {// Alternating color!
 		character = tags['seamark:light:character'].substring(3);

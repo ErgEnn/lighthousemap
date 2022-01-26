@@ -104,7 +104,7 @@
 	<script src="leaflet.light.js"></script>
 	<script>
 		let map = L.map('seamap', { attributionControl: false })
-			.setView([54.2, 2.6], 6)
+			.setView([58.6, 25], 8)
 			.addControl(L.control.attribution({
 				position: 'bottomright',
 				prefix: 'Made by <a href="https://www.geodienst.xyz/">Geodienst</a>'
@@ -171,7 +171,7 @@
 							radius: (parseFloat(feat.properties.tags['seamark:light:range'], 10) || 1) * 1852,
 							sequence: sequence,
 							stroke: false,
-							fillOpacity: 0.9,
+							fillOpacity: 0.5,
 							fill: !!sequence.state(0),
 							fillColor: sequence.state(0)
 						})]);
@@ -217,7 +217,7 @@
 								startAngle: start,
 								stopAngle: stop,
 							});
-							layr.push(l)
+							layr.push(l);
 							i++;
 						}
 						return new L.SectorGroup(layr);
