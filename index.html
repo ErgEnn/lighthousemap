@@ -52,6 +52,10 @@
 			<input name="real-colors" type="checkbox">
 			Show real colors
 		</label>
+		<label>
+			<input name="real-distances" type="checkbox">
+			Show real distance
+		</label>
 	</div>
 	<a href="https://github.com/geodienst/lighthousemap"><img
 			style="position: absolute; top: 0; right: 0; border: 0; z-index: 1000"
@@ -204,6 +208,7 @@
 								interactive: false,
 								title: feat.properties.tags['name'],
 								radius: (parseFloat(data['seamark:light:range'], 10) || 1) * 1852,
+								realDistance: (parseFloat(data['seamark:light:range'], 10) || 1) * 1852,
 								sequence: sequence,
 								stroke: false,
 								fillOpacity: 0.5,
@@ -229,6 +234,15 @@
 			useRealColors = this.checked;
 		});
 
+		
+		let useRealDistances = true;
+
+		document.querySelector('input[name=real-distances]').checked = useRealColors;
+
+		document.querySelector('input[name=real-distances]').addEventListener('change', function (e) {
+			useRealDistances = this.checked;
+		});
+
 		lights.then(layer => {
 			let draw = function (t) {
 				layer.eachVisibleLayer(layerGroup => {
@@ -238,6 +252,7 @@
 							try {
 								var state = marker.options.sequence.state(t);
 								marker.setColor(state ? (useRealColors ? state : '#FF0') : false);
+								marker.setUseRealDistance(useRealDistances);
 							} catch (e) {
 								console.error(e)
 							}
@@ -255,6 +270,8 @@
 		}).catch(e => console.error(e));
 
 		lights.catch(e => console.error(e));
+
+
 
 	</script>
 </body>

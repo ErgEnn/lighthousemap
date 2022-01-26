@@ -1,8 +1,22 @@
 L.Light = L.SemiCircle.extend({
-	setColor(color) {
+	options:{
+		realDistance: 1852,
+		useRealDistance: true
+	},
+
+	setColor: function(color) {
 		if (this._color !== color) {
 			this._color = color;
 			L.Path.prototype.setStyle.call(this, {fill: !!color, fillColor: color});
+		}
+	},
+	setUseRealDistance: function(b) {
+		if(b != this.useRealDistance){
+			if(b)
+				this.setRadius(this.realDistance);
+			else
+				this.setRadius(500);
+			this.useRealDistance = b;
 		}
 	}
 });
